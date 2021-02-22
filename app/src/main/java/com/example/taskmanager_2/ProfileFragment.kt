@@ -6,11 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.example.taskmanager_2.ui.main.viewmodel.MainViewModel
 import com.example.taskmanager_2.utils.Status
-import kotlinx.android.synthetic.main.fragment_profile.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,6 +36,8 @@ class ProfileFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
+        activity?.title = "My Profile"
+
     }
 
     override fun onCreateView(
@@ -47,26 +49,42 @@ class ProfileFragment : Fragment() {
 
         val token = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)
 
-        viewModel.getUser(token.getString("userID", token.getString("UserID", "0")),token).observe(viewLifecycleOwner, Observer { networkResource ->
-            when (networkResource.status) {
-                Status.LOADING -> {
-                    Toast.makeText(requireActivity().baseContext, "loading data from network", Toast.LENGTH_SHORT).show()
-                }
-                Status.SUCCESS -> {
-                    val message = networkResource.data
-                    message?.let {
-                        Toast.makeText(requireActivity().baseContext, message, Toast.LENGTH_SHORT).show()
-                        textViewUserName.text = token.getString("Name", "<NAME>")
-                        textViewUserEmail.text = token.getString("Email", "<EMAIL>")
-                        textViewUserID.text = token.getString("UserID", "<ID>")
-                        textViewUserPhone.text = token.getString("Phone", "<PHONE_NUMER>")
+        var textViewUserName = view.findViewById<TextView>(R.id.textViewUserName)
+        var textViewUserEmail = view.findViewById<TextView>(R.id.textViewUserEmail)
+        var textViewUserID = view.findViewById<TextView>(R.id.textViewUserID)
+        var textViewUserPhone = view.findViewById<TextView>(R.id.textViewUserPhone)
+
+        if((!token.getString("isLoggedIn", "").equals("")) and (!token.getString("isProfileSet", "").equals(""))){
+            textViewUserName.text = token.getString("Name", "<NAME>")
+            textViewUserEmail.text = token.getString("Email", "<EMAIL>")
+            textViewUserID.text = token.getString("UserID", "<ID>")
+            textViewUserPhone.text = token.getString("Phone", "<PHONE_NUMER>")
+        }else {
+
+            viewModel.getUser(token.getString("userID", token.getString("UserID", "0")), token)
+                .observe(viewLifecycleOwner, Observer { networkResource ->
+                    when (networkResource.status) {
+                        Status.LOADING -> {
+                        }
+                        Status.SUCCESS -> {
+                            val message = networkResource.data
+                            message?.let {
+                                textViewUserName.text = token.getString("Name", "<NAME>")
+                                textViewUserEmail.text = token.getString("Email", "<EMAIL>")
+                                textViewUserID.text = token.getString("UserID", "<ID>")
+                                textViewUserPhone.text = token.getString("Phone", "<PHONE_NUMER>")
+                            }
+                        }
+                        Status.ERROR -> {
+                            Toast.makeText(
+                                requireActivity().baseContext,
+                                "Could not load user details",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
-                }
-                Status.ERROR -> {
-                    Toast.makeText(requireActivity().baseContext, "error loading data from network", Toast.LENGTH_SHORT).show()
-                }
-            }
-        })
+                })
+        }
 
         return view
     }

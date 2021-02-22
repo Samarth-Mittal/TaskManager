@@ -3,14 +3,15 @@ package com.example.taskmanager_2.ui.main.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.example.taskmanager_2.HomeActivity
+import com.example.taskmanager_2.DraftActivity
 import com.example.taskmanager_2.R
 import kotlinx.android.synthetic.main.layout_task_card.view.*
 
 class MainAdapter(
-    private val tasks: MutableSet<String?>,
-    var clickListener: HomeActivity
+    private val tasks: List<String?>,
+    var clickListener: OnTaskClickListener
 ): RecyclerView.Adapter<MainAdapter.DataViewHolder>() {
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -25,11 +26,11 @@ class MainAdapter(
             }
         }
 
-        /*fun initialize(task: String?, clickListener: HomeActivity) {
+        fun initialize(task: String?, clickListener: OnTaskClickListener) {
             itemView.setOnClickListener{
                 clickListener.onItemClick(task, adapterPosition)
             }
-        }*/
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder {
@@ -42,7 +43,7 @@ class MainAdapter(
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
         holder.bind(tasks.elementAt(position))
-        //holder.initialize(tasks.elementAt(position), clickListener)
+        holder.initialize(tasks.elementAt(position), clickListener)
     }
 
 }

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class Task(
     @SerializedName("assigne_id")
-    val assigneId: Any,
+    val assigneId: Member,
     @SerializedName("description")
     val description: Any,
     @SerializedName("id")
