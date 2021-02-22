@@ -29,4 +29,7 @@ interface UserApi {
 
     @DELETE("/admin/task/{taskID}")
     suspend fun deleteTask(@Path("taskID") id: String): Response<ResponseWithID>
+
+    /*@POST("/admin/team/{teamID}/sort")
+    suspend fun getSortedTasks(@Body type: Type, @Path("teamID") id: String): Response<TeamDetails>*/
 }

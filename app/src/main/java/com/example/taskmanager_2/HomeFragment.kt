@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.example.taskmanager_2.data.model.Type
 import com.example.taskmanager_2.ui.main.viewmodel.MainViewModel
 import com.example.taskmanager_2.utils.Status
 
@@ -112,9 +113,19 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
 
+
+
         when(parent?.id){
             spinnerSort.id -> {
                 //Sorting algo
+                /*when(position){
+                    0 -> {
+                        getSortedTasks("priority", spinnerTeamID.selectedItem.toString())
+                    }
+                    1 -> {
+                        getSortedTasks("planneddate", spinnerTeamID.selectedItem.toString())
+                    }
+                }*/
 
             }
             spinnerTeamID.id -> {
@@ -124,6 +135,46 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         homeFragmentCallback.getSpinners(spinnerTeamID.selectedItemId, (spinnerTask.selectedItemId-1), spinnerStatus.selectedItemId, spinnerSort.selectedItemId)
 
     }
+
+    /*private fun getSortedTasks(s: String, selectedItem: String) {
+        val token = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)
+
+        val type = Type()
+        type.type = s
+
+        var id: String = "0"
+
+        var teamIDs = token.getStringSet("teamIDs", mutableSetOf())
+        teamIDs?.forEach lit@{
+            if(selectedItem.equals(it.substring(0, it.indexOf("(")))){
+                id = it.substring(it.indexOf("(")+1, it.indexOf(")"))
+                return@lit
+            }
+        }
+
+        var viewModel = MainViewModel()
+        viewModel.getSortedTasks(type, id, token).observe(this, Observer { networkResource ->
+            when (networkResource.status) {
+                Status.LOADING -> {
+                }
+                Status.SUCCESS -> {
+                    val message = networkResource.data
+                    message?.let {
+                        val teamMembersIDs = token.getStringSet("TeamMembers", mutableSetOf<String>())
+                        var teamMembersName = mutableListOf<String>()
+                        teamMembersIDs?.forEach{
+                            teamMembersName.add(it.substring(0, it.indexOf("(")))
+                        }
+                        teamMembersName.add(0, "All")
+                        setDynamicArrayAdapter(spinnerTask, teamMembersName!!)
+                    }
+                }
+                Status.ERROR -> {
+                    Toast.makeText(requireActivity().baseContext, "Could not fetch team details from network", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }*/
 
     private fun getTeamDetails(position: Int) {
         val token: SharedPreferences = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)

@@ -201,4 +201,16 @@ class MainViewModel : ViewModel() {
             emit(Resource.error(update_task_response.body()?.response_string.toString()))
         }
     }
+
+    /*fun getSortedTasks(type: Type, id: String, token: SharedPreferences) = liveData(Dispatchers.IO) {
+        emit(Resource.loading())
+        val teamDetails = apiService.getSortedTasks(type, id)
+        if(teamDetails.isSuccessful){
+            parseResponse(teamDetails.body(), token)
+            emit(Resource.success(teamDetails.body()?.name))
+        }else{
+            emit(Resource.error(teamDetails.body()?.id.toString()))
+        }
+
+    }*/
 }
