@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    tools:context=".TaskActivity">
+    tools:context=".DraftTaskActivity">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -49,7 +49,7 @@
                     app:cardMaxElevation="5dp">
 
                     <TextView
-                        android:id="@+id/textViewID"
+                        android:id="@+id/textViewTeamID"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="left|center"
@@ -60,7 +60,7 @@
                         android:background="@color/white"
                         android:gravity="center"
                         android:padding="5dp"
-                        android:text="Task ID:"
+                        android:text="Team ID:"
                         android:textSize="15sp" />
                 </androidx.cardview.widget.CardView>
 
@@ -75,7 +75,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextID"
+                        android:id="@+id/editTextDraftTeamID"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="left|center"
@@ -86,7 +86,7 @@
                         android:background="@color/white"
                         android:enabled="false"
                         android:padding="5dp"
-                        android:text="Task ID"
+                        android:text="Team ID"
                         android:textSize="15sp" />
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
@@ -133,7 +133,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextTitle"
+                        android:id="@+id/editTextDraftTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -191,7 +191,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextDescription"
+                        android:id="@+id/editTextDraftDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -249,7 +249,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextStatus"
+                        android:id="@+id/editTextDraftStatus"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -307,7 +307,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextPriority"
+                        android:id="@+id/editTextDraftPriority"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -365,7 +365,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextPlannedDate"
+                        android:id="@+id/editTextDraftPlannedDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -423,7 +423,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextAssignee"
+                        android:id="@+id/editTextDraftAssignee"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -481,7 +481,7 @@
                     app:cardMaxElevation="5dp">
 
                     <EditText
-                        android:id="@+id/editTextReporter"
+                        android:id="@+id/editTextDraftReporter"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|center"
@@ -498,14 +498,13 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/linearLayoutEditDeleteBtns"
+                android:id="@+id/linearLayoutDraftEditDeleteBtns"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/buttonEdit"
+                    android:id="@+id/buttonDraftEdit"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
@@ -513,7 +512,7 @@
                     android:text="Edit"></Button>
 
                 <Button
-                    android:id="@+id/buttonDelete"
+                    android:id="@+id/buttonDraftDelete"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
@@ -525,15 +524,14 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/linearLayoutSaveCancelBtns"
+                android:id="@+id/linearLayoutDraftSaveCancelBtns"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
                 android:visibility="gone"
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/buttonSave"
+                    android:id="@+id/buttonDraftSave"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
@@ -541,7 +539,7 @@
                     android:text="Save"></Button>
 
                 <Button
-                    android:id="@+id/buttonCancel"
+                    android:id="@+id/buttonDraftCancel"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
@@ -552,7 +550,18 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/buttonDraftCreate"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:text="Create Task"></Button>
+
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

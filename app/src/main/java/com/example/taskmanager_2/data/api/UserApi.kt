@@ -7,7 +7,7 @@ import retrofit2.http.*
 interface UserApi {
 
     @POST("/login")
-    suspend fun doLogin(@Body loginUser: LoginUser): Response<LoginResponse>
+    suspend fun doLogin(@Body loginUser: LoginUser): Response<ResponseWithID>
 
     @POST("/registration")
     suspend fun doRegister(@Body signUpUser: SignUpUser): Response<JSONResponse>
@@ -20,4 +20,13 @@ interface UserApi {
 
     @GET("/admin/team/{teamID}")
     suspend fun getTeamDetails(@Path("teamID") id: String?): Response<TeamDetails>
+
+    @POST("/admin/createtask/{teamID}")
+    suspend fun createTask(@Body task: NewTask, @Path("teamID") id: String?): Response<ResponseWithID>
+
+    @PUT("/admin/task/{taskID}")
+    suspend fun updateTask(@Body task: UpdateTask, @Path("taskID") id: String): Response<JSONResponse>
+
+    @DELETE("/admin/task/{taskID}")
+    suspend fun deleteTask(@Path("taskID") id: String): Response<ResponseWithID>
 }

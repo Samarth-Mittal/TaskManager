@@ -13,16 +13,21 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.taskmanager_2.HomeFragment"
-        android:label="fragment_home"
+        android:label="Dashoard"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.taskmanager_2.ProfileFragment"
-        android:label="fragment_profile"
+        android:label="My Profile"
         tools:layout="@layout/fragment_profile" />
+    <activity
+        android:id="@+id/draftBodyActivity"
+        android:name="com.example.taskmanager_2.DraftActivity"
+        android:label="Tasks"
+        tools:layout="@layout/activity_draft" />
     <fragment
-        android:id="@+id/taskBodyFragment"
-        android:name="com.example.taskmanager_2.FragmentTaskBody"
-        android:label="fragment_task_body"
-        tools:layout="@layout/fragment_task_body" />
+        android:id="@+id/logoutFragment"
+        android:name="com.example.taskmanager_2.LogoutFragment"
+        android:label="Logout"
+        tools:layout="@layout/fragment_logout" />
 </navigation>

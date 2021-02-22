@@ -8,11 +8,11 @@
             android:title="Profile"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/taskBodyFragment"
+            android:id="@+id/draftBodyActivity"
             android:title="Drafts"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/homeFragment"
+            android:id="@+id/logoutFragment"
             android:title="Logout"
             tools:ignore="HardcodedText" />
     </group>

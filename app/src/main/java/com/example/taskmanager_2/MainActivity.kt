@@ -11,12 +11,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnLogin_MainActivity.setOnClickListener(){
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
+        title = "Task Manager"
 
-        btnSignUp_MainActivity.setOnClickListener(){
-            startActivity(Intent(this, SignUpActivity::class.java))
+        val token = getSharedPreferences("User", Context.MODE_PRIVATE)
+
+        if(!token.getString("isLoggedIn", "").equals("")){
+            btn_MainActivity.text = "Tap to open Dashboard"
+            btn_MainActivity.setOnClickListener(){
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            }
+        }else {
+            btn_MainActivity.text = "Tap to login"
+            val editor = token.edit()
+            editor.putInt("isFirstLogin", 0)
+            editor.commit()
+            btn_MainActivity.setOnClickListener() {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
         }
     }
 }

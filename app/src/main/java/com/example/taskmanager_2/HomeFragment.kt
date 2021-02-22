@@ -1,25 +1,16 @@
 package com.example.taskmanager_2
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.navigation.Navigation
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.taskmanager_2.ui.main.adapter.MainAdapter
 import com.example.taskmanager_2.ui.main.viewmodel.MainViewModel
 import com.example.taskmanager_2.utils.Status
-import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_home.view.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -37,14 +28,19 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var param1: String? = null
     private var param2: String? = null
 
-    private lateinit var homeFragmentCallback: HomeFragmentCallback
+    private lateinit var spinnerTeamID: Spinner
+    private lateinit var spinnerTask: Spinner
+    private lateinit var spinnerStatus: Spinner
+    private lateinit var spinnerSort: Spinner
 
+    private lateinit var homeFragmentCallback: HomeFragmentCallback
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
     }
 
     override fun onCreateView(
@@ -53,31 +49,40 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ): View? {
         // Inflate the layout for this fragment
 
-        val view = inflater.inflate(R.layout.fragment_home, container, false)
         val token: SharedPreferences = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)
+
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
         val textViewUsername = view.findViewById<TextView>(R.id.textViewUsername)
 
         textViewUsername.text = token.getString("Name","NAME")
         val teamsIDs = token.getStringSet("TeamIDs", mutableSetOf<String>())
 
-        val spinnerStatus: Spinner = view.findViewById(R.id.spinnerStatus)
-        val spinnerSort: Spinner = view.findViewById(R.id.spinnerSort)
+        spinnerStatus = view.findViewById(R.id.spinnerStatus)
+        spinnerSort = view.findViewById(R.id.spinnerSort)
         val buttonAddTask: Button = view.findViewById(R.id.buttonAddTask)
-        val spinnerTeamID: Spinner = view.findViewById(R.id.spinnerTeamID)
+        spinnerTeamID = view.findViewById(R.id.spinnerTeamID)
+        spinnerTask = view.findViewById(R.id.spinnerTask)
 
-        setDynamicArrayAdapter(spinnerTeamID!!, teamsIDs!!)
+        val teamNames = mutableListOf<String>()
+        teamsIDs?.forEach {
+            teamNames.add(it.substring(0,it.indexOf("(")))
+        }
+        setDynamicArrayAdapter(spinnerTeamID!!, teamNames!!)
         setStaticArrayAdapter(spinnerStatus!!, R.array.TaskStatus)
         setStaticArrayAdapter(spinnerSort!!, R.array.SortOptions)
 
         buttonAddTask.setOnClickListener(){
-            Toast.makeText(requireActivity().baseContext, "Add Task Activity", Toast.LENGTH_SHORT).show()
+            homeFragmentCallback.goToNewTaskActivity(spinnerTeamID.selectedItem.toString())
         }
+
+
 
         return view
     }
 
     interface HomeFragmentCallback{
-        fun getSpinners(spinner: Spinner, spinnerID: Int, position: Int)
+        fun getSpinners(teamID: Long, taskID: Long, statusID: Long, sortID: Long)
+        fun  goToNewTaskActivity(teamName: String)
     }
 
     override fun onAttach(context: Context) {
@@ -85,7 +90,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         homeFragmentCallback = context as HomeFragmentCallback
     }
 
-    private fun setDynamicArrayAdapter(spinner: Spinner, stringSet: Set<String>) {
+    private fun setDynamicArrayAdapter(spinner: Spinner, stringSet: List<String>) {
         val arrayAdapter = ArrayAdapter(requireActivity().baseContext, android.R.layout.simple_spinner_item, stringSet!!.toList())
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = arrayAdapter
@@ -102,46 +107,27 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        Toast.makeText(requireActivity().baseContext, "What happens here?", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireActivity().baseContext, "No item selected", Toast.LENGTH_SHORT).show()
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
         when(parent?.id){
             spinnerSort.id -> {
                 //Sorting algo
-                Toast.makeText(requireActivity().baseContext, "sort: "+parent?.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show()
-            }
-            spinnerStatus.id -> {
-                //which RV is shown
-                Toast.makeText(requireActivity().baseContext, "Status: "+parent?.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show()
-                homeFragmentCallback.getSpinners(spinnerStatus, 2, position)
-                //populateRV(position)
-            }
-            spinnerTask.id -> {
-                //whose task's are shown
-                getTasks(position)
+
             }
             spinnerTeamID.id -> {
                 getTeamDetails(position)
             }
         }
-    }
-
-    /*private fun populateRV(position: Int) {
-
-    }*/
-
-    private fun getTasks(position: Int) {
-        val token = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)
-        val TeamMembers = token.getStringSet("TeamMembers", mutableSetOf<String>())
-        val element = TeamMembers?.elementAt(position).toString()
-        val memberID = element.substring(element.indexOf("(")+1, element.indexOf(")"))
-
+        homeFragmentCallback.getSpinners(spinnerTeamID.selectedItemId, (spinnerTask.selectedItemId-1), spinnerStatus.selectedItemId, spinnerSort.selectedItemId)
 
     }
 
     private fun getTeamDetails(position: Int) {
-        val token = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)
+        val token: SharedPreferences = requireActivity().baseContext.getSharedPreferences("User", Context.MODE_PRIVATE)
+
         val TeamIDs = token.getStringSet("TeamIDs", mutableSetOf<String>())
         var viewModel = MainViewModel()
         val element = TeamIDs?.elementAt(position).toString()
@@ -149,17 +135,21 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         viewModel.getTeamDetails(teamID, token).observe(this, Observer { networkResource ->
             when (networkResource.status) {
                 Status.LOADING -> {
-                    Toast.makeText(requireActivity().baseContext, "loading data from network", Toast.LENGTH_SHORT).show()
                 }
                 Status.SUCCESS -> {
                     val message = networkResource.data
                     message?.let {
-                        val teamMembers = token.getStringSet("TeamMembers", mutableSetOf<String>())
-                        setDynamicArrayAdapter(spinnerTask, teamMembers!!)
+                        val teamMembersIDs = token.getStringSet("TeamMembers", mutableSetOf<String>())
+                        var teamMembersName = mutableListOf<String>()
+                        teamMembersIDs?.forEach{
+                            teamMembersName.add(it.substring(0, it.indexOf("(")))
+                        }
+                        teamMembersName.add(0, "All")
+                        setDynamicArrayAdapter(spinnerTask, teamMembersName!!)
                     }
                 }
                 Status.ERROR -> {
-                    Toast.makeText(requireActivity().baseContext, "error loading data from network", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity().baseContext, "Could not fetch team details from network", Toast.LENGTH_SHORT).show()
                 }
             }
         })

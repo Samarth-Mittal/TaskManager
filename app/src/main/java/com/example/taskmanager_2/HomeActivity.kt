@@ -1,6 +1,7 @@
 package com.example.taskmanager_2
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,23 +18,20 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskmanager_2.ui.main.adapter.MainAdapter
+import com.example.taskmanager_2.ui.main.adapter.OnTaskClickListener
 import com.example.taskmanager_2.ui.main.viewmodel.MainViewModel
 import com.example.taskmanager_2.utils.Status
 import kotlinx.android.synthetic.main.activity_home.*
 
-class HomeActivity : AppCompatActivity(), HomeFragment.HomeFragmentCallback {
+class HomeActivity : AppCompatActivity(), HomeFragment.HomeFragmentCallback, OnTaskClickListener {
 
     private lateinit var navController: NavController
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-    //private lateinit var listener: NavController.OnDestinationChangedListener
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-
-        title = "Dashboard"
 
         val token: SharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE)
 
@@ -46,14 +44,20 @@ class HomeActivity : AppCompatActivity(), HomeFragment.HomeFragmentCallback {
         appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        title = "Dashboard"
 
-
+        if(token.getInt("isFirstLogin", 0)==0){
+            var editor = token.edit()
+            editor.putInt("isFirstLogin", 1)
+            editor.commit()
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
 
     }
 
-    interface OnTaskItemClickListener {
+    /*interface OnTaskItemClickListener {
         fun onItemClick(task: String?, position: Int)
-    }
+    }*/
 
     private fun populateTeamIDsUIComponent(token: SharedPreferences?) {
 
@@ -63,19 +67,16 @@ class HomeActivity : AppCompatActivity(), HomeFragment.HomeFragmentCallback {
                 Observer { networkResource ->
                     when (networkResource.status) {
                         Status.LOADING -> {
-                            Toast.makeText(this, "loading data from network", Toast.LENGTH_SHORT)
-                                .show()
                         }
                         Status.SUCCESS -> {
                             val message = networkResource.data
                             message?.let {
-                                Toast.makeText(this, "HERE: "+message, Toast.LENGTH_SHORT).show()
                             }
                         }
                         Status.ERROR -> {
                             Toast.makeText(
                                 this,
-                                "error loading data from network",
+                                "Could not load teams from network",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -91,76 +92,134 @@ class HomeActivity : AppCompatActivity(), HomeFragment.HomeFragmentCallback {
                 || super.onSupportNavigateUp()
     }
 
-    override fun getSpinners(spinner: Spinner, spinnerId: Int, position: Int) {
-        when(spinnerId){
+    override fun getSpinners(teamID: Long, taskID: Long, statusID: Long, sortID: Long) {
+
+        getTasks((taskID).toInt())
+
+        populateRV(statusID.toInt())
+
+        /*when(spinnerId){
             1 -> {
 
             }
             2 -> {
                 populateRV(position)
             }
+            3 -> {
+
+            }
+            4 -> {
+
+            }
+        }*/
+    }
+
+    override fun goToNewTaskActivity(name: String) {
+        val token = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val teamsIDs = token.getStringSet("TeamIDs", mutableSetOf<String>())
+        var id = "0"
+        teamsIDs?.forEach {
+            var teamName = it.substring(0, it.indexOf("("))
+            if(teamName.equals(name)){
+                id = it.substring(it.indexOf("(")+1, it.indexOf(")"))
+            }
         }
+        var intent = Intent(this, NewTaskActivity::class.java)
+        //intent.putExtra("TeamID", id)
+        startActivity(intent)
+    }
+
+    private fun getTasks(position: Int) {
+        val token: SharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE)
+
+        val TeamMembers = token.getStringSet("TeamMembers", mutableSetOf<String>())
+        val memberID: String
+
+        var allToDoString = token.getStringSet("allToDoTasks", mutableSetOf<String>())
+        var allInProgressString = token.getStringSet("allInProgressTasks", mutableSetOf<String>())
+        var allCompletedString = token.getStringSet("allCompletedTasks", mutableSetOf<String>())
+        var toDoString = mutableSetOf<String>()
+        var inProgressString = mutableSetOf<String>()
+        var completedString = mutableSetOf<String>()
+
+        if(position>=0) {
+            val element = TeamMembers?.elementAt(position).toString()
+            memberID = element.substring(element.indexOf("(") + 1, element.indexOf(")"))
+
+            allToDoString?.forEach {
+                var task = it.split(",")
+                if(task[6].equals(memberID)){
+                    toDoString.add(it)
+                }
+            }
+            allCompletedString?.forEach {
+                var task = it.split(",")
+                if(task[6].equals(memberID)){
+                    inProgressString.add(it)
+                }
+            }
+            allInProgressString?.forEach {
+                var task = it.split(",")
+                if(task[6].equals(memberID)){
+                    completedString.add(it)
+                }
+            }
+        }else{
+            memberID = "-1"
+            toDoString = allToDoString!!
+            inProgressString = allInProgressString!!
+            completedString = allCompletedString!!
+        }
+
+        val editor = token.edit()
+        editor.putStringSet("toDoTasks", toDoString)
+        editor.putStringSet("inProgressTasks", inProgressString)
+        editor.putStringSet("completedTasks", completedString)
+        editor.commit()
+
     }
 
     private fun populateRV(position: Int) {
+
+        when(position){
+            0 -> {
+                recyclerViewAdapter("toDoTasks")
+            }
+            1 -> {
+                recyclerViewAdapter("inProgressTasks")
+            }
+            2 -> {
+                recyclerViewAdapter("completedTasks")
+            }
+        }
+
+    }
+
+    private fun recyclerViewAdapter(key: String) {
 
         val token = getSharedPreferences("User", Context.MODE_PRIVATE)
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         lateinit var adapter: MainAdapter
 
+        recyclerView.addItemDecoration(DividerItemDecoration(this, 0))
 
-        when(position){
-            0 -> {
-                val toDoString = token.getStringSet("toDoTasks", mutableSetOf<String>())
-                recyclerView.layoutManager = LinearLayoutManager(this)
-                adapter = MainAdapter(toDoString!!, this)
-                recyclerView.addItemDecoration(
-                    DividerItemDecoration(
-                        recyclerView.context,
-                        (recyclerView.layoutManager as LinearLayoutManager).orientation
-                    )
-                )
-                recyclerView.adapter = adapter
-            }
-            1 -> {
-                val inProgressString = token.getStringSet("inProgressTasks", mutableSetOf<String>())
-                recyclerView.layoutManager = LinearLayoutManager(this)
-                adapter = MainAdapter(inProgressString!!, this)
-                recyclerView.addItemDecoration(
-                    DividerItemDecoration(
-                        recyclerView.context,
-                        (recyclerView.layoutManager as LinearLayoutManager).orientation
-                    )
-                )
-                recyclerView.adapter = adapter
-            }
-            2 -> {
-                val completedString = token.getStringSet("completedTasks", mutableSetOf<String>())
-                recyclerView.layoutManager = LinearLayoutManager(this)
-                adapter = MainAdapter(completedString!!, this)
-                recyclerView.addItemDecoration(
-                    DividerItemDecoration(
-                        recyclerView.context,
-                        (recyclerView.layoutManager as LinearLayoutManager).orientation
-                    )
-                )
-                recyclerView.adapter = adapter
-            }
-        }
+        val taskString = token.getStringSet(key, mutableSetOf<String>())
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = MainAdapter(taskString?.toList()!!, this)
+        recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                recyclerView.context,
+                (recyclerView.layoutManager as LinearLayoutManager).orientation
+            )
+        )
+        recyclerView.adapter = adapter
 
     }
 
-    /*override fun onItemClick(task: String?, position: Int) {
-        val intent = Intent(this, TaskActivity::class.java)
-        val values = task?.split(",")
-        intent.putExtra("title", values?.get(0))
-        intent.putExtra("id", values?.get(1))
-        intent.putExtra("status", values?.get(2))
-        intent.putExtra("priority", values?.get(3))
-        intent.putExtra("desc", values?.get(4))
-        intent.putExtra("reporterID", values?.get(5))
-        intent.putExtra("assigneeID", values?.get(6))
-        intent.putExtra("plannedDate", values?.get(7))
+    override fun onItemClick(task: String?, position: Int) {
+        var intent = Intent(this, TaskActivity::class.java)
+        intent.putExtra("TaskInfo", task.toString())
+        intent.putExtra("TaskPosition", position)
         startActivity(intent)
-    }*/
+    }
 }

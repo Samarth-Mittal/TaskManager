@@ -19,6 +19,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        title = "Login"
+
         val token = getSharedPreferences("User", Context.MODE_PRIVATE)
 
         btnLogin.setOnClickListener() {
@@ -31,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
             viewModel.doLogin(loginUser, token).observe(this, Observer { networkResource ->
                 when (networkResource.status) {
                     Status.LOADING -> {
-                        Toast.makeText(this, "loading data from network", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Signing in", Toast.LENGTH_SHORT).show()
                     }
                     Status.SUCCESS -> {
                         val message = networkResource.data
@@ -39,18 +41,16 @@ class LoginActivity : AppCompatActivity() {
                             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                             val intent = Intent(this, HomeActivity::class.java)
 
-                            //finish()
-
                             val editor = token.edit()
-                            editor.putString("Name", loginUser.name)
+                            editor.putString("isLoggedIn", loginUser.name)
                             editor.commit()
 
-                            //note to self: add logic to send user info to HomeActivity
                             startActivity(intent)
+                            finish()
                         }
                     }
                     Status.ERROR -> {
-                        Toast.makeText(this, "error loading data from network", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Incorrect credentials", Toast.LENGTH_SHORT).show()
                     }
                 }
             })
